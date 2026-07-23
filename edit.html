@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicare+ | Edit Inventory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --primary: #38bdf8; --accent: #ef4444; --border: #334155; --input-bg: #0f172a;}
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; }
+        
+        nav { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); padding: 15px 50px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 28px; font-weight: 700; color: var(--text-main); text-decoration: none; display: flex; align-items: center; }
+        .logo span { color: var(--accent); font-size: 34px; line-height: 0.8; margin-left: 2px;} 
+        
+        .nav-links { display: flex; align-items: center; gap: 30px; }
+        .nav-links > a { text-decoration: none; color: var(--text-muted); font-weight: 500; font-size: 15px; transition: 0.3s; cursor: pointer;}
+        .nav-links > a:hover { color: var(--primary); }
+        
+        .dropdown { position: relative; display: flex; align-items: center; }
+        .dropbtn { background: none; border: none; font-size: 28px; color: var(--text-muted); cursor: pointer; transition: 0.3s; padding: 0; }
+        .dropbtn:hover { color: var(--primary); }
+        .dropdown-content { position: absolute; top: 100%; right: 0; background-color: var(--card-bg); min-width: 220px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5); z-index: 1; border-radius: 8px; border: 1px solid var(--border); margin-top: 15px; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.3s ease; }
+        .dropdown-content.show { max-height: 300px; opacity: 1; }
+        .dropdown-content a { color: var(--text-main); padding: 12px 16px; text-decoration: none; display: block; border-bottom: 1px solid var(--border); transition: 0.2s; font-size: 14px;}
+        .dropdown-content a:hover { background-color: rgba(56, 189, 248, 0.1); color: var(--primary); }
+        
+        .container { max-width: 800px; margin: 50px auto; background: var(--card-bg); padding: 50px; border-radius: 16px; border: 1px solid var(--border); }
+        h1 { margin-top: 0; font-size: 28px; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 35px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;}
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .full-width { grid-column: 1 / -1; }
+        label { display: block; font-weight: 500; margin-bottom: 10px; color: var(--text-muted); font-size: 14px; }
+        input[type="text"], textarea, input[type="file"] { width: 100%; padding: 15px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 15px; background: var(--input-bg); color: var(--text-main); transition: 0.3s;}
+        input:focus, textarea:focus { border-color: #f59e0b; outline: none; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);}
+        textarea { resize: vertical; }
+        
+        input[type="file"] { padding: 10px; background: transparent; border: 1px dashed var(--border); cursor: pointer;}
+        input[type="file"]::file-selector-button { background: #f59e0b; color: #000; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; cursor: pointer; margin-right: 15px; transition: 0.3s;}
+        input[type="file"]::file-selector-button:hover { background: #fbbf24; }
+
+        .action-buttons { display: flex; gap: 15px; margin-top: 30px; }
+        button { padding: 18px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        
+        .btn-save { flex: 2; background: #f59e0b; color: #000; }
+        .btn-save:hover { background: #fbbf24; transform: translateY(-2px);}
+        
+        .btn-delete { flex: 1; background: rgba(239, 68, 68, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .btn-delete:hover { background: var(--accent); color: #fff; transform: translateY(-2px);}
+
+        /* Custom Similar Medicine Selector Styles */
+        .sim-container { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--input-bg); }
+        .sim-search { border: none !important; border-bottom: 1px solid var(--border) !important; border-radius: 0 !important; margin: 0; box-shadow: none !important;}
+        .sim-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; padding: 5px;}
+        .sim-list::-webkit-scrollbar { width: 6px; }
+        .sim-list::-webkit-scrollbar-track { background: transparent; }
+        .sim-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .sim-item { display: flex; align-items: center; gap: 12px; padding: 10px; cursor: pointer; border-radius: 4px; transition: 0.2s; margin-bottom: 0 !important; color: var(--text-main) !important;}
+        .sim-item:hover { background: rgba(245, 158, 11, 0.1); }
+        .sim-item input { width: 18px !important; height: 18px !important; margin: 0 !important; cursor: pointer; accent-color: #f59e0b; padding: 0 !important;}
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="/" class="logo">Medicare<span>+</span></a>
+        <div class="nav-links">
+            <a href="/">Search</a>
+            <div class="dropdown">
+                <button class="dropbtn" onclick="toggleMenu()">☰</button>
+                <div class="dropdown-content" id="myDropdown">
+                    <a href="/add">➕ Add New Medicine</a>
+                    <a href="/edit_list" style="color: var(--primary);">✏️ Edit a Medicine</a>
+                    <a href="/logout" style="color: var(--accent);">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>
+            Edit Medicine Details
+            <span style="font-size: 14px; color: #f59e0b;">Database ID: {{ med_id }}</span>
+        </h1>
+        <form id="editForm" onsubmit="submitEdit(event)">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Medicine Name *</label>
+                    <input type="text" name="name" id="f_name" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Medicine Description</label>
+                    <textarea name="description" id="f_desc" rows="3"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Use of Medication</label>
+                    <textarea name="use_of_medication" id="f_use" rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>How to Use Medicine</label>
+                    <textarea name="how_to_use" id="f_how" rows="2"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Storing Details</label>
+                    <textarea name="storing_details" id="f_storing" rows="2"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Side Effects</label>
+                    <textarea name="side_effects" id="f_side" rows="2"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label style="color: var(--accent);">Allergy Warning & Safety Details</label>
+                    <textarea name="allergy_warning" id="f_allergy" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>External Link References (Comma separated URLs)</label>
+                    <input type="text" name="external_links" id="f_links">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Select Alternative Medicines</label>
+                    <input type="hidden" name="similar_ids" id="f_similar"> <div class="sim-container">
+                        <input type="text" class="sim-search" id="simSearch" placeholder="🔍 Search medicines..." onkeyup="filterSimilar()">
+                        <div class="sim-list" id="simListContainer">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Update Product Images (Select multiple files. Leave blank to keep current images)</label>
+                    <input type="file" name="images" accept="image/*" multiple>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button type="submit" class="btn-save" id="saveBtn">💾 Save Updates</button>
+                <button type="button" class="btn-delete" onclick="deleteMedicine()">🗑️ Delete</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const medId = {{ med_id }};
+        let allMeds = [];
+        let selectedMeds = [];
+
+        function toggleMenu() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        window.onload = async () => {
+            const res = await fetch(`/api/medicine/${medId}`);
+            if(res.ok) {
+                const med = await res.json();
+                document.getElementById('f_name').value = med.name || '';
+                document.getElementById('f_desc').value = med.description || '';
+                document.getElementById('f_use').value = med.use_of_medication || '';
+                document.getElementById('f_how').value = med.how_to_use || '';
+                document.getElementById('f_storing').value = med.storing_details || '';
+                document.getElementById('f_side').value = med.side_effects || '';
+                document.getElementById('f_allergy').value = med.allergy_warning || '';
+                document.getElementById('f_links').value = med.external_links || '';
+                
+                document.getElementById('f_similar').value = med.similar_ids_raw || '';
+                selectedMeds = med.similar_ids_raw ? med.similar_ids_raw.split(',') : [];
+
+                const listRes = await fetch('/api/search?q=');
+                allMeds = await listRes.json();
+                renderSimList();
+
+            } else {
+                alert("Error loading medicine data.");
+            }
+        };
+
+        function renderSimList() {
+            const container = document.getElementById('simListContainer');
+            container.innerHTML = '';
+            allMeds.forEach(m => {
+                if (m.id == medId) return; // Hide current medicine from its own alternative list
+                const isChecked = selectedMeds.includes(m.id.toString()) ? 'checked' : '';
+                container.innerHTML += `
+                    <label class="sim-item">
+                        <input type="checkbox" value="${m.id}" ${isChecked} onchange="updateSimilarIds(this)">
+                        ${m.name}
+                    </label>
+                `;
+            });
+        }
+
+        function filterSimilar() {
+            const query = document.getElementById('simSearch').value.toLowerCase();
+            const items = document.querySelectorAll('.sim-item');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        function updateSimilarIds(checkbox) {
+            if(checkbox.checked) {
+                selectedMeds.push(checkbox.value);
+            } else {
+                selectedMeds = selectedMeds.filter(id => id !== checkbox.value);
+            }
+            document.getElementById('f_similar').value = selectedMeds.join(',');
+        }
+
+        async function submitEdit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            const form = document.getElementById('editForm');
+            const formData = new FormData(form);
+
+            try {
+                const res = await fetch(`/api/edit_medicine/${medId}`, { method: 'POST', body: formData });
+                if(res.ok) {
+                    alert('Medicine updated successfully!');
+                    window.location.href = '/edit_list'; 
+                } else {
+                    const data = await res.json();
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('Network Error.');
+            } finally {
+                btn.innerText = '💾 Save Updates';
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteMedicine() {
+            const confirmDelete = confirm("Are you sure you want to completely delete this medicine? This action cannot be undone.");
+            if (confirmDelete) {
+                try {
+                    const res = await fetch(`/api/delete_medicine/${medId}`, { method: 'DELETE' });
+                    if(res.ok) {
+                        alert('Medicine deleted successfully.');
+                        window.location.href = '/edit_list';
+                    } else {
+                        const data = await res.json();
+                        alert('Error: ' + data.error);
+                    }
+                } catch (err) {
+                    alert('Network Error.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

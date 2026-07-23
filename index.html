@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicare+ | Search Inventory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f8fafc; --text-muted: #94a3b8; --primary: #38bdf8; --accent: #ef4444; --border: #334155; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; }
+        
+        nav { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); padding: 15px 50px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 28px; font-weight: 700; color: var(--text-main); text-decoration: none; display: flex; align-items: center; }
+        .logo span { color: var(--accent); font-size: 34px; line-height: 0.8; margin-left: 2px; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);} 
+        
+        .nav-links { display: flex; align-items: center; gap: 30px; }
+        .nav-links > a { text-decoration: none; color: var(--text-muted); font-weight: 500; font-size: 15px; transition: 0.3s;}
+        .nav-links > a:hover { color: var(--primary); }
+        .login-btn { background: var(--primary); color: #0f172a !important; padding: 8px 18px; border-radius: 6px; font-weight: 700; transition: 0.3s;}
+        .login-btn:hover { background: #7dd3fc; }
+        
+        .dropdown { position: relative; display: flex; align-items: center; }
+        .dropbtn { background: none; border: none; font-size: 28px; color: var(--text-muted); cursor: pointer; transition: 0.3s; padding: 0; }
+        .dropbtn:hover { color: var(--primary); }
+        .dropdown-content { position: absolute; top: 100%; right: 0; background-color: var(--card-bg); min-width: 220px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5); z-index: 1; border-radius: 8px; border: 1px solid var(--border); margin-top: 15px; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.3s ease; }
+        .dropdown-content.show { max-height: 300px; opacity: 1; }
+        .dropdown-content a { color: var(--text-main); padding: 12px 16px; text-decoration: none; display: block; border-bottom: 1px solid var(--border); transition: 0.2s; font-size: 14px;}
+        .dropdown-content a:hover { background-color: rgba(56, 189, 248, 0.1); color: var(--primary); }
+
+        .hero { padding: 60px 20px; text-align: center; border-bottom: 1px solid var(--border); background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);}
+        .hero h1 { font-size: 36px; margin: 0 0 25px 0; font-weight: 700; letter-spacing: -0.5px;}
+        
+        .search-container { max-width: 700px; margin: 0 auto; display: flex; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-radius: 8px; overflow: hidden; background: var(--card-bg); border: 1px solid var(--border);}
+        .search-container input { flex: 1; padding: 18px 20px; border: none; font-size: 16px; outline: none; background: transparent; color: var(--text-main); }
+        .search-container button { background: var(--primary); color: #0f172a; border: none; padding: 0 40px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .search-container button:hover { background: #7dd3fc; }
+
+        .container { max-width: 1000px; margin: 50px auto; padding: 0 20px; }
+        .results { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; }
+        .med-card { background: var(--card-bg); border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; border: 1px solid var(--border); transition: all 0.3s; }
+        .med-card:hover { transform: translateY(-8px); border-color: var(--primary); }
+        .med-card img { max-width: 130px; height: 130px; object-fit: contain; margin-bottom: 20px; background: #fff; border-radius: 8px; padding: 10px;}
+        .med-card strong { display: block; font-size: 18px; color: var(--text-main); margin-bottom: 10px; text-align: left;}
+        .med-card .fake-price { color: var(--primary); font-weight: 700; font-size: 14px; text-align: left; margin-top: auto;}
+
+        .details-box { background: var(--card-bg); border-radius: 16px; padding: 40px; display: flex; flex-direction: column; gap: 30px; border: 1px solid var(--border); margin-top: 20px;}
+        
+        .image-gallery { display: flex; overflow-x: auto; gap: 20px; padding-bottom: 15px; scroll-snap-type: x mandatory;}
+        .image-gallery::-webkit-scrollbar { height: 8px; }
+        .image-gallery::-webkit-scrollbar-track { background: var(--bg-color); border-radius: 4px; }
+        .image-gallery::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .image-gallery::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+        .image-gallery img { height: 300px; max-width: 100%; object-fit: contain; border-radius: 12px; background: #fff; padding: 20px; box-sizing: border-box; scroll-snap-align: center; flex-shrink: 0; border: 1px solid var(--border);}
+
+        .details-info-col h2 { margin: 0 0 20px 0; font-size: 36px; font-weight: 700; color: var(--text-main); }
+        
+        .info-card { background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border); padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+        .info-card h4 { margin: 0 0 12px 0; color: var(--text-main); font-size: 16px; }
+        .info-card p { margin: 0; color: var(--text-muted); line-height: 1.7; font-size: 15px; white-space: pre-wrap; }
+        .info-card.warning { border-left: 4px solid var(--accent); }
+        .info-card.warning h4 { color: var(--accent); }
+        
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
+        .back-btn { cursor: pointer; color: var(--text-muted); font-weight: 500; font-size: 15px; transition: 0.3s;}
+        .back-btn:hover { color: var(--primary); }
+
+        .similar-list { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px; }
+        .similar-item { display: flex; align-items: center; gap: 12px; background: var(--bg-color); padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: 0.3s; }
+        .similar-item:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+        .similar-item img { width: 45px; height: 45px; object-fit: contain; border-radius: 6px; background: #fff; padding: 5px;}
+        .similar-item span { color: var(--text-main); font-weight: 600; font-size: 14px;}
+
+        /* External Links UI */
+        .external-links-container { display: flex; flex-direction: column; gap: 10px; margin-top: 10px;}
+        .external-link-btn { background: var(--bg-color); color: var(--primary); padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid var(--border); display: inline-block; transition: 0.3s; word-break: break-all;}
+        .external-link-btn:hover { border-color: var(--primary); background: rgba(56, 189, 248, 0.05);}
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="/" class="logo">Medicare<span>+</span></a>
+        <div class="nav-links">
+            <a href="/">Search</a>
+            
+            {% if is_admin %}
+            <div class="dropdown">
+                <button class="dropbtn" onclick="toggleMenu()">☰</button>
+                <div class="dropdown-content" id="myDropdown">
+                    <a href="/add">➕ Add New Medicine</a>
+                    <a href="/edit_list">✏️ Edit a Medicine</a>
+                    <a href="/logout" style="color: var(--accent);">🚪 Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login" class="login-btn">Admin Login</a>
+            {% endif %}
+
+        </div>
+    </nav>
+
+    <div class="hero" id="heroSection">
+        <h1>Your trusted healthcare partner</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for medicines...">
+            <button onclick="searchMeds()">Search</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="resultsArea" class="results"></div>
+        <div id="detailsArea" style="display: none;"></div>
+    </div>
+
+    <script>
+        window.onload = () => searchMeds('');
+
+        function toggleMenu() {
+            const drop = document.getElementById("myDropdown");
+            if(drop) drop.classList.toggle("show");
+        }
+
+        async function searchMeds(initialQuery = null) {
+            const query = initialQuery !== null ? initialQuery : document.getElementById('searchInput').value;
+            const res = await fetch(`/api/search?q=${query}`);
+            const data = await res.json();
+            
+            const resultsArea = document.getElementById('resultsArea');
+            document.getElementById('detailsArea').style.display = 'none';
+            document.getElementById('heroSection').style.display = 'block';
+            resultsArea.style.display = 'grid';
+            resultsArea.innerHTML = '';
+            
+            if(data.length === 0) {
+                resultsArea.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px; font-size: 18px;">No medicines found.</p>';
+                return;
+            }
+
+            data.forEach(med => {
+                const imageArray = med.image_paths ? med.image_paths.split(',') : [];
+                const img = imageArray.length > 0 ? `/static/${imageArray[0]}` : 'https://via.placeholder.com/150?text=Rx';
+                
+                resultsArea.innerHTML += `
+                    <div class="med-card" onclick="viewDetails(${med.id})">
+                        <img src="${img}" alt="${med.name}">
+                        <strong>${med.name}</strong>
+                        <div class="fake-price">View Details →</div>
+                    </div>
+                `;
+            });
+        }
+
+        async function viewDetails(id) {
+            const res = await fetch(`/api/medicine/${id}`);
+            const med = await res.json();
+            
+            document.getElementById('resultsArea').style.display = 'none';
+            document.getElementById('heroSection').style.display = 'none'; 
+            const detailsArea = document.getElementById('detailsArea');
+            detailsArea.style.display = 'block';
+            
+            let galleryHtml = '';
+            if (med.images && med.images.length > 0) {
+                med.images.forEach(imgPath => {
+                    galleryHtml += `<img src="/static/${imgPath}" alt="${med.name}">`;
+                });
+            } else {
+                galleryHtml = `<img src="https://via.placeholder.com/400x300?text=No+Image+Available" alt="No Image">`;
+            }
+
+            // Build Similar Medicines
+            let similarHtml = '';
+            if (med.similar_medicines && med.similar_medicines.length > 0) {
+                similarHtml = `
+                    <div class="info-card" style="background: transparent; border: 1px solid var(--primary);">
+                        <h4 style="color: var(--primary);">🔗 Alternative / Similar Medicines</h4>
+                        <div class="similar-list">`;
+                
+                med.similar_medicines.forEach(s => {
+                    const simImageArray = s.image_paths ? s.image_paths.split(',') : [];
+                    const simImg = simImageArray.length > 0 ? `/static/${simImageArray[0]}` : 'https://via.placeholder.com/50?text=Rx';
+                    similarHtml += `
+                        <div class="similar-item" onclick="viewDetails(${s.id})">
+                            <img src="${simImg}" alt="${s.name}"><span>${s.name}</span>
+                        </div>`;
+                });
+                similarHtml += `</div></div>`;
+            }
+
+            let linksHtml = '';
+            if (med.external_links) {
+                const links = med.external_links.split(',').map(l => l.trim()).filter(l => l !== "");
+                if (links.length > 0) {
+                    linksHtml = `
+                    <div class="info-card">
+                        <h4>🌐 External Resources</h4>
+                        <div class="external-links-container">`;
+                    links.forEach(link => {
+                        // Ensure links have http:// so they open correctly
+                        const safeLink = (link.startsWith('http://') || link.startsWith('https://')) ? link : `https://${link}`;
+                        linksHtml += `<a href="${safeLink}" target="_blank" class="external-link-btn">🔗 ${link}</a>`;
+                    });
+                    linksHtml += `</div></div>`;
+                }
+            }
+
+            detailsArea.innerHTML = `
+                <div class="header-actions">
+                    <span class="back-btn" onclick="document.getElementById('resultsArea').style.display='grid'; document.getElementById('detailsArea').style.display='none'; document.getElementById('heroSection').style.display='block';">
+                        ← Back to Search
+                    </span>
+                </div>
+                <div class="details-box">
+                    <div class="image-gallery">
+                        ${galleryHtml}
+                    </div>
+                    <div class="details-info-col">
+                        <h2>${med.name}</h2>
+                        
+                        <div class="info-card">
+                            <h4>📝 Medicine Description</h4>
+                            <p>${med.description || 'N/A'}</p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h4>🎯 Use of Medication</h4>
+                            <p>${med.use_of_medication || 'N/A'}</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4>💊 How to Use Medication</h4>
+                            <p>${med.how_to_use || 'N/A'}</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h4>📦 Storing Details</h4>
+                            <p>${med.storing_details || 'N/A'}</p>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h4>🩺 Side Effects</h4>
+                            <p>${med.side_effects || 'N/A'}</p>
+                        </div>
+
+                        <div class="info-card warning">
+                            <h4>⚠️ Allergy & Safety Warning</h4>
+                            <p>${med.allergy_warning || 'N/A'}</p>
+                        </div>
+
+                        ${linksHtml}
+                        ${similarHtml}
+                    </div>
+                </div>
+            `;
+
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
